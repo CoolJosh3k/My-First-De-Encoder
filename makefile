@@ -3,8 +3,11 @@ CXXFLAGS = -g -Wall# -DDEBUG
 
 INCLUDE = include/
 
+.PHONY: $(OBJECTS)
 OBJECTS = error_strings.o limits.o buffers.o file_streams.o
+.PHONY: $(ENCODER_OBJECTS)
 ENCODER_OBJECTS = encoder_main.o encode.o
+.PHONY: $(DECODER_OBJECTS)
 DECODER_OBJECTS = decoder_main.o decode.o
 
 BUILD_ENCODER = $(CXX) $(CXXFLAGS) -o Encode $(ENCODER_OBJECTS) $(OBJECTS)
@@ -14,16 +17,17 @@ ifeq ($(OS), Windows_NT)
 	CXXFLAGS += -DWINDOWS
 endif
 
-.PHONY: clean All Encoder Decoder $(OBJECTS) $(ENCODER_OBJECTS) $(DECODER_OBJECTS)
-
-All: $(ENCODER_OBJECTS) $(DECODER_OBJECTS) $(OBJECTS)
+.PHONY: all
+all: $(ENCODER_OBJECTS) $(DECODER_OBJECTS) $(OBJECTS)
 	$(BUILD_ENCODER)
 	$(BUILD_DECODER)
 
-Encoder: $(ENCODER_OBJECTS) $(OBJECTS)
+.PHONY: encoder
+encoder: $(ENCODER_OBJECTS) $(OBJECTS)
 	$(BUILD_ENCODER)
 
-Decoder: $(DECODER_OBJECTS) $(OBJECTS)
+.PHONY: Decoder
+decoder: $(DECODER_OBJECTS) $(OBJECTS)
 	$(BUILD_DECODER)
 
 encoder_main.o: encoder_main.cpp $(INCLUDE)encode.h
@@ -50,5 +54,6 @@ buffers.o: $(INCLUDE)buffers.h
 file_streams.o: $(INCLUDE)file_streams.h
 	$(CXX) $(CXXFLAGS) -c file_streams.cpp
 
+.PHONY: clean
 clean:
-	rm Encode Decode $(OBJECTS)
+	rm *.o

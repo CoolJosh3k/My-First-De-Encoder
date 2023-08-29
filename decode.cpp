@@ -76,14 +76,12 @@ void GetParams(const char* const header) {
 
 bool Decoder::Decode() {
 	DecoderBuffer dbuf {};
-	uintmax_t in_sz {0};	//Number of characters
-	uintmax_t out_sz {0};
-	char* io {nullptr};
-	char*& in {io};
-	char*& out {io};
-	delete io;
-	bool fi {true};			//First iteration
-	uintmax_t di {0};		//Current Decode iteration
+	uintmax_t in_sz {0};			//Number of characters left to read
+	uintmax_t out_sz {0};			//Number of characters to be written
+	char*& in {dbuf.buffer.at(0)};
+	char*& out {dbuf.buffer.at(1)};
+	bool fi {true};					//First iteration
+	uintmax_t di {0};				//Current Decode iteration
 	
 	while (true) {
 		
@@ -103,8 +101,6 @@ bool Decoder::Decode() {
 				m = (m-HEADER_SIZE) * b;	//Max possible length including more than a single iteration
 			}
 			dbuf.CreateBuffers(m);
-			in = dbuf.GetBufferPointer(0);
-			out = dbuf.GetBufferPointer(1);
 			
 			//Get initial data
 			in_sz = fs.GetInFileSize();
@@ -132,7 +128,7 @@ bool Decoder::Decode() {
 			uint8_t cs = num_mode_segs_per_byte - 1U;	//Current segment
 			do {	//We have not finished the segments
 				if (mode == mode_8) {
-					uint8_t nb {0b111};
+					uint8_t nb {0b111};	//Next bit
 					nb <<= 4*cs;
 					nb &= *in_t;
 					nb >>= 4*cs;

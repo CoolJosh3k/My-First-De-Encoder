@@ -36,7 +36,3 @@ DecoderBuffer::~DecoderBuffer() {
 void DecoderBuffer::CreateBuffers(size_t size) {
 	for (size_t i {0}; i < DecoderBuffer::buffer.size(); ++i) DecoderBuffer::buffer.at(i) = new char[size];
 }
-
-char* DecoderBuffer::GetBufferPointer(size_t buffer_index) {
-	return DecoderBuffer::buffer.at(buffer_index);
-}

@@ -23,8 +23,7 @@ class DecoderBuffer {
 		DecoderBuffer();
 		~DecoderBuffer();
 		void CreateBuffers(size_t size);
-		char* GetBufferPointer(size_t buffer_index = 0);
 		
-	private:
+	public:
 		std::array<char*, 2> buffer;
 };

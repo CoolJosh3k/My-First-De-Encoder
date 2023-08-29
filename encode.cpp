@@ -6,7 +6,9 @@
 #include <stdint.h>
 #include <filesystem>
 #include <ios>
-#include <string>
+#include <cstring>
+#include <limits>
+#include <climits>
 
 #include "include/error_strings.h"
 #include "include/limits.h"
@@ -28,6 +30,7 @@ std::string out_file_string_done {};
 uint8_t encode_iter {0};	//Current encode iteration
 uintmax_t chars_read {0};	//Total chars read in so far
 uint8_t progress {0};
+typeof(progress) progress_last {progress};
 const uint8_t progress_bar_size {101};
 const char progress_bar_empty[progress_bar_size] {"                                                                                                    "};
 typeof(iter) expected_iterations {1};
@@ -66,16 +69,21 @@ bool Encoder::SetIter(char* const argv) {
 		err_msg.PrintIterNeg();
 		return false;
 	}
-
-	iter = atoi(argv);
+	
+	if (std::strlen(argv) > std::strlen(std::to_string(std::numeric_limits<int>::max()).c_str())) {	//Too many character making a too large number?
+		err_msg.PrintIterTooLarge();
+		return false;
+	} else {
+		auto argv_iter = atoi(argv);
+		if (argv_iter > ITER_LIM) {
+			err_msg.PrintIterTooLarge();
+			return false;
+		}
+		iter = static_cast<char>(argv_iter);
+	}
 	
 	if (iter == 0) {
 		err_msg.PrintIterZero();
-		return false;
-	}
-	
-	if (iter > ITER_LIM) {
-		printf("\nNumber of iterations must be %i at most.\n", ITER_LIM);
 		return false;
 	}
 	
@@ -84,7 +92,7 @@ bool Encoder::SetIter(char* const argv) {
 	return true;
 }
 
-bool Encoder::RenameOutFile() {
+bool RenameOutFile() {
 	if (std::filesystem::exists(out_file_string_done.c_str())) {
 		if (std::remove(out_file_string_done.c_str())) {
 			printf("\nError removing previous %s file!\n", ext.done.c_str());
@@ -107,7 +115,7 @@ bool Encoder::OpenFiles() {
 bool Encoder::CloseFiles() {
 	bool success {true};
 	success = fs.CloseInFile();
-	success =  fs.CloseOutFile();
+	if ((success = fs.CloseOutFile())) success = RenameOutFile();
 	return success;
 }
 
@@ -128,10 +136,13 @@ void ResetProgress(char progress_bar[]) {
 }
 
 void UpdateProgress() {
+	progress_last = progress;
 	progress = static_cast<float>(chars_read)/static_cast<float>(fs.GetInFileSize())*100;	//progress
 }
 
 void PrintProgress(char progress_bar[]) {
+	if (progress <= progress_last) return;
+	
 	if (cout_buffer.GetHasCoutBuffer()) printf("\rIteration %u of %i; Progress %.3u%% [%s]", encode_iter+1, expected_iterations, progress, progress_bar);
 }
 
@@ -227,7 +238,6 @@ bool Encoder::Encode() {
 		++encode_iter;
 		--iter;
 		CloseFiles();
-		RenameOutFile();
 		fs.OpenInFile(&out_file_string_done);
 		fs.OpenOutFile(&out_file_string_new);
 		ResetProgress(pb);

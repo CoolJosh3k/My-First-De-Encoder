@@ -22,6 +22,11 @@ void ErrMsg::PrintIterZero() {
 	std::cout << ErrMsg::iter_zero << std::endl;
 }
 
+void ErrMsg::PrintIterTooLarge() {
+	//std::cout << ErrMsg::iter_too_large << std::endl;
+	printf("\nNumber of iterations must be %i at most.\n", ITER_LIM);
+}
+
 void ErrMsg::PrintWriteFail() {
 	std::cout << ErrMsg::write_fail << std::endl;
 }

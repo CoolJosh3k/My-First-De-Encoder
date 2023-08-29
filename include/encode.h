@@ -5,7 +5,6 @@ class Encoder {
 		static bool SetIter(char* const argv);
 		static bool OpenFiles();
 		static bool CloseFiles();
-		static bool RenameOutFile();
 		static bool Encode();
 		
 		#if DEBUG

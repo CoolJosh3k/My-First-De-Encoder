@@ -3,6 +3,5 @@ class Decoder {
 		static bool SetInOutFileStrings(char* const in, char* const out);
 		static bool OpenFiles();
 		static bool CloseFiles();
-		static bool RenameOutFile();
 		static bool Decode();
 };

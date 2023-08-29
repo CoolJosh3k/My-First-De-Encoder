@@ -22,3 +22,21 @@ bool CoutBuffer::GetHasCoutBuffer() {
 	if (cout_buf_fail) return false;
 	return true;
 }
+
+DecoderBuffer::DecoderBuffer() {
+	for (size_t i {0}; i < DecoderBuffer::buffer.size(); ++i) {
+		DecoderBuffer::buffer.at(i) = nullptr;
+	}
+}
+
+DecoderBuffer::~DecoderBuffer() {
+	for (size_t i {0}; i < DecoderBuffer::buffer.size(); ++i) delete DecoderBuffer::buffer.at(i);
+}
+
+void DecoderBuffer::CreateBuffers(size_t size) {
+	for (size_t i {0}; i < DecoderBuffer::buffer.size(); ++i) DecoderBuffer::buffer.at(i) = new char[size];
+}
+
+char* DecoderBuffer::GetBufferPointer(size_t buffer_index) {
+	return DecoderBuffer::buffer.at(buffer_index);
+}

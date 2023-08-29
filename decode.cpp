@@ -39,20 +39,7 @@ bool Decoder::SetInOutFileStrings(char* const in, char* const out) {
 	return true;
 }
 
-bool Decoder::OpenFiles() {
-	if (!fs.OpenInFile(&in_file_string)) return false;
-	if (!fs.OpenOutFile(&out_file_string_temp)) return false;
-	return true;
-}
-
-bool Decoder::CloseFiles() {
-	bool success {true};
-	success = fs.CloseInFile();
-	success =  fs.CloseOutFile();
-	return success;
-}
-
-bool Decoder::RenameOutFile() {
+bool RenameOutFile() {
 	if (std::filesystem::exists(out_file_string.c_str())) {
 		if (std::remove(out_file_string.c_str())) {
 			printf("\nError removing previous %s file!\n", ext.done.c_str());
@@ -66,6 +53,19 @@ bool Decoder::RenameOutFile() {
 	return true;
 }
 
+bool Decoder::OpenFiles() {
+	if (!fs.OpenInFile(&in_file_string)) return false;
+	if (!fs.OpenOutFile(&out_file_string_temp)) return false;
+	return true;
+}
+
+bool Decoder::CloseFiles() {
+	bool success {true};
+	success = fs.CloseInFile();
+	if ((success = fs.CloseOutFile())) success = RenameOutFile();
+	return success;
+}
+
 void GetParams(const char* const header) {
 	const char im {0b1111 << ITER_BITS_POS};	//Iterations mask
 	const char pm {0b11 << PAD_BITS_POS};		//Paddings mask
@@ -75,12 +75,13 @@ void GetParams(const char* const header) {
 }
 
 bool Decoder::Decode() {
-	char* b1 {nullptr};		//Data buffers
-	char* b2 {nullptr};
+	DecoderBuffer dbuf {};
 	uintmax_t in_sz {0};	//Number of characters
 	uintmax_t out_sz {0};
-	char*& in {b1};
-	char*& out {b2};
+	char* io {nullptr};
+	char*& in {io};
+	char*& out {io};
+	delete io;
 	bool fi {true};			//First iteration
 	uintmax_t di {0};		//Current Decode iteration
 	
@@ -101,12 +102,13 @@ bool Decoder::Decode() {
 			for (int i {1}; i < expected_iterations; ++i) {
 				m = (m-HEADER_SIZE) * b;	//Max possible length including more than a single iteration
 			}
-			b1 = reinterpret_cast<typeof(b1)>(std::malloc(m));
-			b2 = reinterpret_cast<typeof(b2)>(std::malloc(m));
+			dbuf.CreateBuffers(m);
+			in = dbuf.GetBufferPointer(0);
+			out = dbuf.GetBufferPointer(1);
 			
 			//Get initial data
 			in_sz = fs.GetInFileSize();
-			fs.in_fs.read(b1, in_sz);
+			fs.in_fs.read(in, in_sz);
 			in_sz -= HEADER_SIZE;
 			
 		} else {
@@ -138,7 +140,7 @@ bool Decoder::Decode() {
 					while (nb) {	//We have not finished the sequence
 						
 						//Set the out bits
-						if (*in_t & 0b1<<3<<(4*cs)) {
+						if (*in_t & 1 << (3 + 4*cs)) {
 							*out_t |= 1 << cb;
 						} else {
 							*out_t &= ~(1 << cb);

@@ -10,7 +10,7 @@
 
 namespace fs = std::filesystem;
 
-const char VERSION[] {"1.0.0"};
+const char VERSION[] {"1.0.1"};
 
 void PrintUsage(char* const path) {
 	auto fn {fs::path(path).filename().c_str()};
@@ -27,7 +27,16 @@ int main (int argc, char* argv[]) {
 	
 	cout_buffer.SetupConsoleOutBuffer();
 	
-	if (argc <= 2) {
+	bool argv_err = false;
+	if (argc <= 2) argv_err = true;
+	for (int i {1}; i < argc; ++i) {
+		if (!argv[i]) {
+			argv_err = true;
+			break;
+		}
+	}
+	
+	if (argv_err) {
 		printf("\nVersion: %s\n", VERSION);
 		PrintUsage(argv[0]);
 		return EXIT_FAILURE;
@@ -43,7 +52,6 @@ int main (int argc, char* argv[]) {
 	}
 	
 	if (!Decoder::CloseFiles()) return EXIT_FAILURE;
-	if (!Decoder::RenameOutFile()) return EXIT_FAILURE;
 	
 	return EXIT_SUCCESS;
 }

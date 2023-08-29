@@ -10,7 +10,7 @@
 
 namespace fs = std::filesystem;
 
-const char VERSION[] {"1.0.4"};
+const char VERSION[] {"1.0.5"};
 
 struct arg_flag {
 	const uint8_t success {in};
@@ -34,7 +34,7 @@ void PrintUsage(char* const path){
 	printf("\t        Defaults to 1.\n");
 }
 
-void HandleArgs(int* const argc, char** const argv, uint8_t* const valid, const arg_flag* const flag) {
+void HandleArgs(int& argc, char** const argv, uint8_t* const valid, const arg_flag* const flag) {
 	const struct {
 		const std::string out {"-o"};
 		const std::string iter {"-i"};
@@ -43,14 +43,14 @@ void HandleArgs(int* const argc, char** const argv, uint8_t* const valid, const 
 	
 	std::string arg {""};
 	
-	for (int i = 2; i < *argc; ++i) {
+	for (int i = 2; i < argc; ++i) {
 		
 		arg.assign(argv[i]);
 		if (arg == specifier.out) {
 			if (*valid & flag->out) {
 				err_msg.PrintRepeatArg();
 			} else {
-				if (i+1 == *argc) {
+				if (i+1 == argc) {
 					err_msg.PrintTooFewArg();
 					*valid |= flag->fail;
 					return;
@@ -60,7 +60,7 @@ void HandleArgs(int* const argc, char** const argv, uint8_t* const valid, const 
 			}
 			
 			++i;
-			if (i == *argc) {
+			if (i == argc) {
 				return;
 			} else continue;
 		}
@@ -69,15 +69,18 @@ void HandleArgs(int* const argc, char** const argv, uint8_t* const valid, const 
 			if (*valid & flag->iter) {
 				err_msg.PrintRepeatArg();
 			} else {
-				if (i+1 == *argc) {
+				if (i+1 == argc) {
 					err_msg.PrintTooFewArg();
 					*valid |= flag->fail;
 					return;
-				} else Encoder::SetIter(argv[i+1]) ? *valid |= flag->iter : *valid |= flag->fail;
+				} else if (!(Encoder::SetIter(argv[i+1]) ? *valid |= flag->iter : *valid |= flag->fail)) {
+					*valid |= flag->fail;
+					return;
+				}
 			}
 			
 			++i;
-			if (i == *argc) {
+			if (i == argc) {
 				return;
 			} else continue;
 		}
@@ -90,7 +93,16 @@ int main(int argc, char** argv) {
 	
 	cout_buffer.SetupConsoleOutBuffer();
 	
-	if (argc <= 1) {
+	bool argv_err = false;
+	if (argc <= 1) argv_err = true;
+	for (int i {1}; i < argc; ++i) {
+		if (!argv[i]) {
+			argv_err = true;
+			break;
+		}
+	}
+	
+	if (argv_err) {
 		printf("\nVersion: %s\n", VERSION);
 		PrintUsage(argv[0]);
 		std::cout << std::endl;
@@ -99,7 +111,7 @@ int main(int argc, char** argv) {
 	
 	if (Encoder::SetInOutFileStrings(argv[1])) {
 		valid |= flag.in;
-		HandleArgs(&argc, argv, &valid, &flag);
+		HandleArgs(argc, argv, &valid, &flag);
 	} else {
 		valid |= flag.fail;
 	}
@@ -124,7 +136,6 @@ int main(int argc, char** argv) {
 	}
 	
 	if (!Encoder::CloseFiles()) return EXIT_FAILURE;
-	if (!Encoder::RenameOutFile()) return EXIT_FAILURE;
 	
 	printf("\nDone!\n");
 	

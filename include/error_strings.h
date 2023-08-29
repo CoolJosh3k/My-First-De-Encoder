@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "limits.h"
 
 class ErrMsg {
 	public:
@@ -8,6 +9,7 @@ class ErrMsg {
 		void PrintIterNotNum();
 		void PrintIterNeg();
 		void PrintIterZero();
+		void PrintIterTooLarge();
 		void PrintWriteFail();
 	
 	private:
@@ -16,6 +18,6 @@ class ErrMsg {
 		const std::string iter_not_num {"\nNumber of iterations must be a number.\n"};
 		const std::string iter_neg {"\nNumber of iterations cannot be negative.\n"};
 		const std::string iter_zero {"\nNumber of iterations cannot be zero.\n"};
-		const std::string write_fail {"\nFailed to write to output file!"};
+		const std::string write_fail {"\nFailed to write to output file!\n"};
 };
 static ErrMsg err_msg {};

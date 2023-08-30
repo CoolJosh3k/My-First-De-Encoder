@@ -30,7 +30,7 @@ DecoderBuffer::DecoderBuffer() {
 }
 
 DecoderBuffer::~DecoderBuffer() {
-	for (size_t i {0}; i < DecoderBuffer::buffer.size(); ++i) delete DecoderBuffer::buffer.at(i);
+	for (size_t i {0}; i < DecoderBuffer::buffer.size(); ++i) delete[] DecoderBuffer::buffer.at(i);
 }
 
 void DecoderBuffer::CreateBuffers(size_t size) {

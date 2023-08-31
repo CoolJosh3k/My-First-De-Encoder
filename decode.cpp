@@ -100,7 +100,7 @@ bool Decoder::Decode() {
 			for (int i {1}; i < expected_iterations; ++i) {
 				m = (m-HEADER_SIZE) * b;	//Max possible length including more than a single iteration
 			}
-			dbuf.CreateBuffers(m);
+			if(!dbuf.CreateBuffers(m)) return false;
 			
 			//Get initial data
 			in_sz = fs.GetInFileSize();

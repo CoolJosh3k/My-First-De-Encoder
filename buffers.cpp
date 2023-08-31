@@ -1,6 +1,8 @@
 #include "include/buffers.h"
 
 #include <stdio.h>
+#include <new>
+#include <iostream>
 
 char buffer[256];
 
@@ -30,9 +32,25 @@ DecoderBuffer::DecoderBuffer() {
 }
 
 DecoderBuffer::~DecoderBuffer() {
-	for (size_t i {0}; i < DecoderBuffer::buffer.size(); ++i) delete[] DecoderBuffer::buffer.at(i);
+	for (size_t i {0}; i < DecoderBuffer::buffer.size(); ++i) {
+		delete[] DecoderBuffer::buffer.at(i);
+		DecoderBuffer::buffer.at(i) = nullptr;
+	}
 }
 
-void DecoderBuffer::CreateBuffers(size_t size) {
-	for (size_t i {0}; i < DecoderBuffer::buffer.size(); ++i) DecoderBuffer::buffer.at(i) = new char[size];
+bool DecoderBuffer::CreateBuffers(size_t size) {
+	for (size_t i {0}; i < DecoderBuffer::buffer.size(); ++i){
+		try {
+			DecoderBuffer::buffer.at(i) = new char[size];
+		} catch (std::bad_alloc const&) {
+			std::cerr << "\nNot enough free memory available!\n";
+			for (size_t j {i-1}; j > 0 ; --j) {
+				delete[] DecoderBuffer::buffer.at(j);
+				DecoderBuffer::buffer.at(j) = nullptr;
+			}
+			return false;
+		}
+	}
+	
+	return true;
 }

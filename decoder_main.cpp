@@ -10,7 +10,7 @@
 
 namespace fs = std::filesystem;
 
-const char VERSION[] {"1.0.1"};
+const char VERSION[] {"1.0.2"};
 
 void PrintUsage(char* const path) {
 	auto fn {fs::path(path).filename().c_str()};

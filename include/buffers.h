@@ -22,7 +22,7 @@ class DecoderBuffer {
 	public:
 		DecoderBuffer();
 		~DecoderBuffer();
-		void CreateBuffers(size_t size);
+		bool CreateBuffers(size_t size);
 		
 	public:
 		std::array<char*, 2> buffer;

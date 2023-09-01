@@ -10,7 +10,7 @@
 
 namespace fs = std::filesystem;
 
-const char VERSION[] {"1.0.5"};
+const char VERSION[] {"1.0.6"};
 
 struct arg_flag {
 	const uint8_t success {in};
@@ -21,11 +21,16 @@ struct arg_flag {
 };
 
 void PrintUsage(char* const path){
-	auto fn {fs::path(path).filename().c_str()};
+	std::string fn {NULL};
+	try {
+		fn = fs::path(path).filename();
+	} catch(const std::bad_alloc& e) {
+		fn = "PROGRAM_NAME";
+	}
 	#if WINDOWS
-		printf("\nUsage: %ls in [-o out] [-i number | -t number]\n", fn);
+		printf("\nUsage: %ls in [-o out] [-i number | -t number]\n", fn.c_str());
 	#else
-		printf("\nUsage: %s in [-o out] [-i number | -t number]\n", fn);
+		printf("\nUsage: %s in [-o out] [-i number | -t number]\n", fn.c_str());
 	#endif
 	printf("\tin: input file\n");
 	printf("\tout: output file. File extention will be added automatically.\n");

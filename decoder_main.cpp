@@ -10,14 +10,19 @@
 
 namespace fs = std::filesystem;
 
-const char VERSION[] {"1.0.2"};
+const char VERSION[] {"1.0.3"};
 
 void PrintUsage(char* const path) {
-	auto fn {fs::path(path).filename().c_str()};
+	std::string fn {NULL};
+	try {
+		fn = fs::path(path).filename();
+	} catch(const std::bad_alloc& e) {
+		fn = "PROGRAM_NAME";
+	}
 	#if WINDOWS
-		printf("\nUsage: %ls in out\n", fn);
+		printf("\nUsage: %ls in out\n", fn.c_str());
 	#else
-		printf("\nUsage: %s in out\n", fn);
+		printf("\nUsage: %s in out\n", fn.c_str());
 	#endif
 	printf("\tin: input file\n");
 	printf("\tout: output file\n");

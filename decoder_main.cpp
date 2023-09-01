@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 const char VERSION[] {"1.0.3"};
 
 void PrintUsage(char* const path) {
-	std::string fn {NULL};
+	fs::path fn {};
 	try {
 		fn = fs::path(path).filename();
 	} catch(const std::bad_alloc& e) {
@@ -44,6 +44,7 @@ int main (int argc, char* argv[]) {
 	if (argv_err) {
 		printf("\nVersion: %s\n", VERSION);
 		PrintUsage(argv[0]);
+		std::cout << std::endl;
 		return EXIT_FAILURE;
 	}
 	

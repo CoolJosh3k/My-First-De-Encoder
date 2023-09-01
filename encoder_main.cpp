@@ -21,7 +21,7 @@ struct arg_flag {
 };
 
 void PrintUsage(char* const path){
-	std::string fn {NULL};
+	fs::path fn {};
 	try {
 		fn = fs::path(path).filename();
 	} catch(const std::bad_alloc& e) {

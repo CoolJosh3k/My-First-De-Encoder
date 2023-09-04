@@ -70,7 +70,7 @@ bool Encoder::SetIter(char* const argv) {
 		return false;
 	}
 	
-	if (std::strlen(argv) > std::strlen(std::to_string(std::numeric_limits<int>::max()).c_str())) {	//Too many character making a too large number?
+	if (std::strlen(argv) > (std::strlen(std::to_string(std::numeric_limits<int>::max()).c_str()) -1)) {	//Too many character making a too large number?
 		err_msg.PrintIterTooLarge();
 		return false;
 	} else {

@@ -48,10 +48,10 @@ bool Encoder::SetOutFileStrings(const char* out) {
 	return true;
 }
 
-bool Encoder::SetIter(char* const argv) {
-	char* p = argv;
+bool Encoder::SetIter(char* const argv_v) {
+	char* p = argv_v;
 	
-	if (*argv == '-') ++p;
+	if (*argv_v == '-') ++p;
 	if (!*p) {
 		err_msg.PrintIterNotNum();
 		return false;
@@ -65,16 +65,16 @@ bool Encoder::SetIter(char* const argv) {
 		++p;
 	}
 	
-	if (*argv == '-') {
+	if (*argv_v == '-') {
 		err_msg.PrintIterNeg();
 		return false;
 	}
 	
-	if (std::strlen(argv) > (std::strlen(std::to_string(std::numeric_limits<int>::max()).c_str()) -1)) {	//Too many character making a too large number?
+	if (std::strlen(argv_v) > (std::strlen(std::to_string(std::numeric_limits<int>::max()).c_str()) -1)) {	//Too many character making a too large number?
 		err_msg.PrintIterTooLarge();
 		return false;
 	} else {
-		auto argv_iter = atoi(argv);
+		auto argv_iter = atoi(argv_v);
 		if (argv_iter > ITER_LIM) {
 			err_msg.PrintIterTooLarge();
 			return false;
